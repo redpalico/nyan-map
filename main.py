@@ -1,9 +1,9 @@
 import random
 
-# Define the terrains and their corresponding alphabets
+# Define the terrains and their corresponding symbols
 terrains = {
     "G": "Grassland",
-    "*": "Water",
+    "W": "Water",
     "F": "Forest",
     "D": "Desert",
     "M": "Mountain"
@@ -12,42 +12,46 @@ terrains = {
 # Create a 7x7 grid with random terrains
 grid = [[random.choice(list(terrains.keys())) for _ in range(7)] for _ in range(7)]
 
-# Ensure the center is not water to allow player's placement
-grid[3][3] = "G"
-
 # Set the player's initial position to the center of the grid
 player_pos = [3, 3]
 
-# Function to display the grid
+# If the player's initial position is water, change it to grassland
+if grid[player_pos[0]][player_pos[1]] == "W":
+    grid[player_pos[0]][player_pos[1]] = "G"
+
 def display_grid():
     for i, row in enumerate(grid):
         for j, cell in enumerate(row):
             if [i, j] == player_pos:
                 print("P", end=" ")
             else:
-                print(cell, end=" ")
+                if cell == "W":
+                    print("*", end=" ")
+                else:
+                    print(cell, end=" ")
         print()
+    
+    # Get the terrain at the player's current position
+    current_terrain = terrains[grid[player_pos[0]][player_pos[1]]]
+    print(f"The player is currently on {current_terrain}.")
+    print()  # Print an empty line
 
-# Function to handle player's movement
+# Function to move the player
 def move_player(direction):
     x, y = player_pos
-    if direction == "W" and x > 0 and grid[x-1][y] != "*":
-        x -= 1
-    elif direction == "S" and x < 6 and grid[x+1][y] != "*":
-        x += 1
-    elif direction == "A" and y > 0 and grid[x][y-1] != "*":
-        y -= 1
-    elif direction == "D" and y < 6 and grid[x][y+1] != "*":
-        y += 1
-    player_pos[0], player_pos[1] = x, y
+    if direction == "W" and x > 0 and grid[x-1][y] != "W":
+        player_pos[0] -= 1
+    elif direction == "A" and y > 0 and grid[x][y-1] != "W":
+        player_pos[1] -= 1
+    elif direction == "S" and x < 6 and grid[x+1][y] != "W":
+        player_pos[0] += 1
+    elif direction == "D" and y < 6 and grid[x][y+1] != "W":
+        player_pos[1] += 1
 
-# Main loop to interact with the player
+# Main loop
 while True:
     display_grid()
     command = input("Move with WASD or press P to exit: ").upper()
-    if command in "WASD":
-        move_player(command)
-    elif command == "P":
+    if command == "P":
         break
-    else:
-        print("Invalid command. Please use WASD to move or P to exit.")
+    move_player(command)
